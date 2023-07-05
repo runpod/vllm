@@ -45,6 +45,7 @@ class RunpodVLLM():
         self.uvicorn_timeout = uvicorn_timeout
 
         # Prepare the middleware
+        self.app = fastapi.FastAPI()
         self.app.add_middleware(
             CORSMiddleware,
             allow_origins=["*"],
