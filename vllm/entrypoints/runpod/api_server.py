@@ -570,10 +570,17 @@ class RunpodVLLM():
             The number of unfinished sequence groups estimates the queue's workload, including swapped memory, 
             waiting queue, and preemption. This information helps with accurate auto-scaling on RunPod.
         """
-        self.engine.engine.scheduler.avg_throughput
+        # Compute the number of running, waiting, and swapped sequences.
+        num_running_seq = [len(x.seqs) for x in self.engine.engine.scheduler.running]
+        num_waiting_seq = [len(x.seqs) for x in self.engine.engine.scheduler.waiting]
+        num_swapped_seq = [len(x.seqs) for x in self.engine.engine.scheduler.swapped]
+
         return {
             'last_logging_time': self.engine.engine.scheduler.last_logging_time,
             'unfinished_sequence_groups': self.engine.engine.scheduler.get_num_unfinished_seq_groups(),
+            'num_running_seq': num_running_seq,
+            'num_waiting_seq': num_waiting_seq,
+            'num_swapped_seq': num_swapped_seq
         }
 
 
@@ -586,7 +593,7 @@ def start_vllm_runpod(served_model: str, port: int = 443, host: str = '127.0.0.1
     # Create engine arguments from parsed arguments.
     engine_args = AsyncEngineArgs.from_cli_args(args)
     engine = AsyncLLMEngine.from_engine_args(engine_args)
-
+    
     # Get the engine model configuration.
     engine_model_config = asyncio.run(engine.get_model_config())
 
