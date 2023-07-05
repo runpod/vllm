@@ -17,6 +17,7 @@ from fastchat.conversation import Conversation, SeparatorStyle
 from fastchat.model.model_adapter import get_conversation_template
 
 import uvicorn
+from vllm.config import ModelConfig
 
 from vllm.engine.arg_utils import AsyncEngineArgs
 from vllm.engine.async_llm_engine import AsyncLLMEngine
@@ -39,10 +40,10 @@ class RunpodVLLM():
         # Prepare instance variables
         self.logger = init_logger(__name__)
         self.tokenizer = tokenizer
-        self.engine = engine
-        self.engine_model_config = engine_model_config
-        self.served_model = served_model
-        self.uvicorn_timeout = uvicorn_timeout
+        self.engine: AsyncLLMEngine = engine
+        self.engine_model_config: ModelConfig = engine_model_config
+        self.served_model: str = served_model
+        self.uvicorn_timeout: int = uvicorn_timeout
 
         # Prepare the middleware
         self.app = fastapi.FastAPI()
@@ -557,8 +558,18 @@ class RunpodVLLM():
             return response
 
 
-    def vllm_queue_state():
-        pass
+    def vllm_queue_state(self):
+        """
+            A sequence group represents a list of sequences associated with an input prompt.
+            When VLLM receives a prompt, it generates a sequence group using beam search, which 
+            produces multiple distinct output sequences instead of a greedy approach.
+            This approach strikes a balance between greedy search and full dynamic programming, 
+            which would be too time-consuming during inference.
+
+            The number of unfinished sequence groups estimates the queue's workload, including swapped memory, 
+            waiting queue, and preemption. This information helps with accurate auto-scaling on RunPod.
+        """
+        return self.engine.engine.scheduler.get_num_unfinished_seq_groups()
 
 
 def start_vllm_runpod(served_model: str, port: int = 443, host: str = '127.0.0.1') -> RunpodVLLM:
