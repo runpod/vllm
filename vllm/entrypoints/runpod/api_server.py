@@ -577,7 +577,7 @@ class RunpodVLLM():
         }
 
 
-def start_vllm_runpod(served_model: str, port: int = 443, host: str = '127.0.0.1') -> RunpodVLLM:
+def start_vllm_runpod(served_model: str, port: int = 443, host: str = '127.0.0.1', uvicorn_timeout: int = 5) -> RunpodVLLM:
     # Arguments for vllm engine.
     parser = argparse.ArgumentParser()
     parser = AsyncEngineArgs.add_cli_args(parser)
@@ -597,7 +597,7 @@ def start_vllm_runpod(served_model: str, port: int = 443, host: str = '127.0.0.1
     )
 
     # Uvicorn timeout default to 5 seconds
-    uvicorn_timeout = 5
+    uvicorn_timeout = uvicorn_timeout
 
     # Start the VLLM instance.
     runpod_vllm = RunpodVLLM(
