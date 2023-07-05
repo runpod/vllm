@@ -35,7 +35,8 @@ from vllm.transformers_utils.tokenizer import get_tokenizer
 from vllm.utils import random_uuid
 
 class RunpodVLLM():
-    # Prepare instance variables
+    __name__ = 'RunpodVLLM'
+
     def __init__(self, host: str, port: int, tokenizer, engine, engine_model_config, served_model, uvicorn_timeout=5):
         # Prepare instance variables
         self.logger = init_logger(__name__)
@@ -569,7 +570,11 @@ class RunpodVLLM():
             The number of unfinished sequence groups estimates the queue's workload, including swapped memory, 
             waiting queue, and preemption. This information helps with accurate auto-scaling on RunPod.
         """
-        return self.engine.engine.scheduler.get_num_unfinished_seq_groups()
+        self.engine.engine.scheduler.avg_throughput
+        return {
+            'last_logging_time': self.engine.engine.scheduler.last_logging_time,
+            'unfinished_sequence_groups': self.engine.engine.scheduler.get_num_unfinished_seq_groups(),
+        }
 
 
 def start_vllm_runpod(served_model: str, port: int = 443, host: str = '127.0.0.1') -> RunpodVLLM:

@@ -266,6 +266,11 @@ class Scheduler:
             else:
                 cpu_cache_usage = 0.0
 
+            # Expose this information upstream.
+            self.avg_throughput = avg_throughput
+            self.gpu_cache_usage = gpu_cache_usage
+            self.cpu_cache_usage = cpu_cache_usage
+
             logger.info(f"Throughput: {avg_throughput:.1f} tokens/s, "
                         f"Running: {len(self.running)} reqs, "
                         f"Swapped: {len(self.swapped)} reqs, "
