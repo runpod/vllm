@@ -56,15 +56,21 @@ class RunpodVLLM():
             allow_headers=["*"]
         )
 
+        # Setup uvicorn params
+        self.host = host
+        self.port = port
+        self.uvicorn_timeout = uvicorn_timeout
+
         # Configure the fastapi routes
         self.configure_routes()
 
+    def start(self):
         # Start the uvicorn instance.
         uvicorn.run(self.app,
-                    host=host,
-                    port=port,
+                    host=self.host,
+                    port=self.port,
                     log_level="info",
-                    timeout_keep_alive=uvicorn_timeout,)
+                    timeout_keep_alive=self.uvicorn_timeout,)
 
 
     # Configure the FastAPI Routes
